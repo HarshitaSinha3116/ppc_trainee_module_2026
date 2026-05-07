@@ -1,0 +1,40 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.interpolate import splprep, splev
+from google.colab import files
+
+uploaded = files.upload()
+
+dataPoints = pd.read_csv('loop_track_waypoints.csv')
+
+x = dataPoints['X'].values
+y = dataPoints['Y'].values
+
+
+if (x[0] != x[-1]) or (y[0] != y[-1]):
+    x = np.append(x, x[0])
+    y = np.append(y, y[0])
+
+tck, u = splprep([x,y], s=0, per=True)
+
+u_new = np.linspace(0, 1, 500)
+x_smooth, y_smooth = splev(u_new, tck)
+
+plt.figure(figsize=(6,6))
+
+plt.plot(x_smooth, y_smooth, label='Cubic Spline', linewidth=2)
+
+plt.plot(x, y, '--', label='Linear Interpolation')
+
+
+plt.scatter(x, y, color='red', label='Waypoints')
+
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.title("Cubic vs Linear Interpolation")
+plt.legend()
+plt.grid()
+plt.axis('equal')
+
+plt.show()
